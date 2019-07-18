@@ -38,3 +38,32 @@ exports.postOneScream = (req, res) => {
       res.status(500).json({ error: "error adding new scream" });
     });
 };
+
+exports.getScream = (req, res) => {
+  let screamData = {};
+  db.doc(`/screams/${req.params.screamId}`)
+    .get()
+    .then(doc => {
+      if (!doc.exists) {
+        return res.status(404).json({ error: "scream not found" });
+      }
+      screamData = doc.data();
+      screamData.screamId = req.params.screamId;
+      return db
+        .collection("comments")
+        .orderBy("createdAt", "desc")
+        .where("screamId", "==", req.params.screamId)
+        .get();
+    })
+    .then(docs => {
+      screamData.comments = [];
+      docs.forEach(doc => {
+        screamData.comments.push(doc.data());
+      });
+      return res.json(screamData);
+    })
+    .catch(error => {
+      console.error("error getting a scream", error);
+      return res.status(500).json(error);
+    });
+};
