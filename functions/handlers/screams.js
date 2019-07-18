@@ -67,3 +67,33 @@ exports.getScream = (req, res) => {
       return res.status(500).json(error);
     });
 };
+
+exports.commentOnScream = (req, res) => {
+  const comment = req.body.body.trim();
+  if (comment === "")
+    return res.status(400).json({ error: "comment must not be empty" });
+
+  const newComment = {
+    body: comment,
+    createdAt: new Date().toISOString(),
+    userHandle: req.user.handle,
+    screamId: req.params.screamId,
+    userImage: req.user.imageUrl
+  };
+
+  db.doc(`/screams/${newComment.screamId}`)
+    .get()
+    .then(docs => {
+      if (!docs.exists) {
+        return res.status(404).json({ error: "scream not found" });
+      }
+      return db.collection("comments").add(newComment);
+    })
+    .then(() => {
+      res.json(newComment);
+    })
+    .catch(error => {
+      console.error("scream not found", error);
+      return res.status(500).json(error);
+    });
+};
