@@ -32,3 +32,10 @@ exports.validateLoginData = user => {
   if (isEmpty(user.password)) errors.password = "must not be empty";
   return errors;
 };
+
+exports.validateImageType = mimeType => {
+  if (mimeType === "image/jpeg" || mimeType === "image/png") {
+    return true;
+  }
+  return false;
+};
