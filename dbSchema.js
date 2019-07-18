@@ -21,3 +21,23 @@ let db = {
     }
   ]
 };
+
+const userDetails = {
+  //Redux data
+  credentials: {
+    bio: "i am computer engg",
+    imageUrl: "https://firebasestorage.googleapis.com/v0/b/...",
+    createdAt: "2019-07-18T04:57:21.292Z",
+    location: "Rupnagar",
+    website: "https:a.com",
+    handle: "user",
+    email: "abc@d.com",
+    userId: "5agNpkl4j6QvcIMnpUe8WtxdtEv1"
+  },
+  likes: [
+    {
+      userHandle: "user",
+      screamId: "abc"
+    }
+  ]
+};

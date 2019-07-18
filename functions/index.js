@@ -6,7 +6,8 @@ const {
   signup,
   login,
   uploadImage,
-  addUserDetails
+  addUserDetails,
+  getAuthenticatedUser
 } = require("./handlers/users");
 
 app.get("/screams", getAllScreams);
@@ -14,6 +15,8 @@ app.post("/scream", firebaseAuth, postOneScream);
 
 app.post("/signup", signup);
 app.post("/login", login);
+
+app.get("/user", firebaseAuth, getAuthenticatedUser);
 app.post("/user", firebaseAuth, addUserDetails);
 app.post("/user/image", firebaseAuth, uploadImage);
 

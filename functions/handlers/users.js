@@ -161,3 +161,28 @@ exports.addUserDetails = (req, res) => {
       return res.status(500).json(error);
     });
 };
+
+exports.getAuthenticatedUser = (req, res) => {
+  let userData = {};
+
+  db.doc(`users/${req.user.handle}`)
+    .get()
+    .then(doc => {
+      userData.credentials = doc.data();
+      return db
+        .collection("likes")
+        .where("handle", "==", req.user.handle)
+        .get();
+    })
+    .then(docs => {
+      userData.likes = [];
+      docs.forEach(doc => {
+        userData.likes.push(doc.data());
+      });
+      return res.json(userData);
+    })
+    .catch(error => {
+      console.error("error getting authenticated user details", error);
+      res.status(500).json(error);
+    });
+};
