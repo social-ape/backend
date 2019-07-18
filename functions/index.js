@@ -22,6 +22,37 @@ admin.initializeApp({
 firebase.initializeApp(firebaseConfig);
 const db = admin.firestore();
 
+const firebaseAuth = (req, res, next) => {
+  let token = req.headers.authorization;
+  if (token && token.startsWith("Bearer ")) {
+    token = token.split("Bearer ")[1];
+  } else {
+    console.error("No token found");
+    res.status(403).json({ error: "unauthoized" });
+  }
+
+  admin
+    .auth()
+    .verifyIdToken(token)
+    .then(userData => {
+      req.user = userData;
+      console.log("decoded token : ", userData);
+      return db
+        .collection("users")
+        .where("userId", "==", userData.uid)
+        .limit(1)
+        .get();
+    })
+    .then(user=>{
+      req.user.handle=user.docs[0].data().handle
+      return next()
+    })
+    .catch(error=>{
+      console.error("error while verifying token", error);
+      return res.status(403).json(error)
+    });
+};
+
 app.get("/screams", (req, res) => {
   db.collection("screams")
     .orderBy("createdAt", "desc")
@@ -43,9 +74,9 @@ app.get("/screams", (req, res) => {
     });
 });
 
-app.post("/scream", (req, res) => {
+app.post("/scream", firebaseAuth, (req, res) => {
   let scream = {
-    userHandle: req.body.userHandle,
+    userHandle: req.user.handle,
     body: req.body.body,
     createdAt: new Date().toISOString()
   };
