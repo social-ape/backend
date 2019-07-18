@@ -4,7 +4,8 @@ const firebase = require("firebase");
 const {
   validateSignUpData,
   validateLoginData,
-  validateImageType
+  validateImageType,
+  reduceUserDetails
 } = require("../util/validators");
 
 firebase.initializeApp(config);
@@ -146,4 +147,17 @@ exports.uploadImage = (req, res) => {
       });
   });
   busboy.end(req.rawBody);
+};
+
+exports.addUserDetails = (req, res) => {
+  let user = reduceUserDetails(req.body);
+  db.doc(`/users/${req.user.handle}`)
+    .update(user)
+    .then(() => {
+      return res.json({ message: "updated successfully" });
+    })
+    .catch(error => {
+      console.error("error adding user details", error);
+      return res.status(500).json(error);
+    });
 };

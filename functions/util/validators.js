@@ -39,3 +39,21 @@ exports.validateImageType = mimeType => {
   }
   return false;
 };
+
+exports.reduceUserDetails = data => {
+  /*
+  here we won't send error if some data is missing as we don't want to enforce user to enter 
+  all details. eg: a user may or may not want to enter his bio.
+  from the frontend, all keys will come(empty, if not present) 
+  and we don't want to save empty keys in firestore. 
+  so we will reduce the details sent from frontend. i.e not include them if not present
+  */
+
+  let user = {};
+
+  if (!isEmpty(data.bio)) user.bio = data.bio;
+  if (!isEmpty(data.website)) user.website = data.website;
+  if (!isEmpty(data.location)) user.location = data.location;
+
+  return user;
+};
