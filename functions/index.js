@@ -4,6 +4,7 @@ const firebaseAuth = require("./util/firebaseAuth");
 const {
   getAllScreams,
   postOneScream,
+  deleteScream,
   getScream,
   commentOnScream,
   likeScream,
@@ -19,6 +20,7 @@ const {
 
 app.get("/screams", getAllScreams);
 app.post("/scream", firebaseAuth, postOneScream);
+app.delete("/scream/:screamId", firebaseAuth, deleteScream);
 app.get("/scream/:screamId", getScream);
 app.post("/scream/:screamId/comment", firebaseAuth, commentOnScream);
 app.get("/scream/:screamId/like", firebaseAuth, likeScream);

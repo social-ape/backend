@@ -72,6 +72,28 @@ exports.getScream = (req, res) => {
     });
 };
 
+exports.deleteScream = (req, res) => {
+  const document = db.doc(`/screams/${req.params.screamId}`);
+  document
+    .get()
+    .then(doc => {
+      if (!doc.exists) {
+        res.status(404).json({ error: "scream not found" });
+      } else if (doc.data().userHandle !== req.user.handle) {
+        res.status(403).json({ error: "unauthorized:connot delete scream" });
+      } else {
+        return document.delete();
+      }
+    })
+    .then(() => {
+      res.json({ message: "scream deleted successfully" });
+    })
+    .catch(error => {
+      console.log("error deleting scream", error);
+      res.status(500).json(error);
+    });
+};
+
 exports.commentOnScream = (req, res) => {
   const comment = req.body.body.trim();
   if (comment === "")
@@ -172,12 +194,12 @@ exports.unlikeScream = (req, res) => {
     })
     .then(data => {
       if (!data.empty) {
-        let likeId
+        let likeId;
         //TODO: find a better way, not able to use data[0].id
-        data.forEach(doc=>{
+        data.forEach(doc => {
           likeId = doc.id;
-        })
-        
+        });
+
         db.doc(`/likes/${likeId}`)
           .delete()
           .then(() => {
