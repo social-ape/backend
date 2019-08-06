@@ -171,7 +171,7 @@ exports.getAuthenticatedUser = (req, res) => {
       userData.credentials = doc.data();
       return db
         .collection("likes")
-        .where("handle", "==", req.user.handle)
+        .where("userHandle", "==", req.user.handle)
         .get();
     })
     .then(docs => {
@@ -179,10 +179,74 @@ exports.getAuthenticatedUser = (req, res) => {
       docs.forEach(doc => {
         userData.likes.push(doc.data());
       });
+      return db
+        .collection("notifications")
+        .where("recipient", "==", req.user.handle)
+        .orderBy("createdAt", "desc")
+        .get();
+    })
+    .then(data => {
+      userData.notifications = [];
+      data.forEach(doc => {
+        userData.notifications.push({
+          ...doc.data(),
+          notificationId: doc.id
+        });
+      });
       return res.json(userData);
     })
     .catch(error => {
       console.error("error getting authenticated user details", error);
+      res.status(500).json(error);
+    });
+};
+
+// get any user's details : NOT PROTECTED
+exports.getUserDetails = (req, res) => {
+  let userData = {};
+  db.doc(`/users/${req.params.userHandle}`)
+    .get()
+    .then(doc => {
+      if (doc.exists) {
+        userData.user = doc.data();
+        return db
+          .collection("screams")
+          .where("userHandle", "==", req.params.userHandle)
+          .orderBy("createdAt", "desc")
+          .get();
+      } else {
+        return res.status(404).json({ error: "user not found" });
+      }
+    })
+    .then(data => {
+      userData.screams = [];
+      data.forEach(doc => {
+        userData.screams.push({
+          ...doc.data(),
+          screamId: doc.id
+        });
+      });
+      return res.json(userData);
+    })
+    .catch(error => {
+      console.error("error getting user details", error);
+      res.status(500).json(error);
+    });
+};
+
+exports.markNotificationsAsRead = (req, res) => {
+  let batch = db.batch();
+  req.body.forEach(notificationId => {
+    const notification = db.doc(`/notifications/${notificationId}`);
+    batch.update(notification, { read: true });
+  });
+  batch
+    .commit()
+    .then(() => {
+      return res.json({ message: "notifications marked read" });
+    })
+    .catch(error => {
+      console.error("error in marking notifications as read", error);
       res.status(500).json(error);
     });
 };

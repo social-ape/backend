@@ -27,6 +27,16 @@ let db = {
       screamId: "abc",
       body: "first comment"
     }
+  ],
+  notifications: [
+    {
+      recepient: "user",
+      sender: "nitin",
+      read: "true | false",
+      screamId: "abcd",
+      type: "like | comment",
+      createdAt: "2019-07-18T17:21:25.798Z"
+    }
   ]
 };
 
