@@ -43,61 +43,62 @@ exports.api = functions.https.onRequest(app);
 exports.createNotificationOnLike = functions.firestore
   .document("likes/{id}")
   .onCreate(snapshot => {
-    db.doc(`/screams/${snapshot.data().screamId}`)
+    return db
+      .doc(`/screams/${snapshot.data().screamId}`)
       .get()
       .then(doc => {
-        return db.doc(`/notifications/${snapshot.id}`).set({
-          createdAt: new Date().toISOString(),
-          sender: snapshot.data().userHandle,
-          recipient: doc.data().userHandle,
-          type: "like",
-          read: false,
-          screamId: doc.id
-        });
-      })
-      .then(() => {
-        return;
+        if (
+          doc.exists &&
+          doc.data().userHandle !== snapshot.data().userHandle
+        ) {
+          return db.doc(`/notifications/${snapshot.id}`).set({
+            createdAt: new Date().toISOString(),
+            sender: snapshot.data().userHandle,
+            recipient: doc.data().userHandle,
+            type: "like",
+            read: false,
+            screamId: doc.id
+          });
+        }
       })
       .catch(error => {
         console.log("error in like notification", error);
-        return;
       });
   });
 
 exports.deleteNotificationOnUnlike = functions.firestore
   .document("likes/{id}")
   .onDelete(snapshot => {
-    db.doc(`/notifications/${snapshot.id}`)
+    return db
+      .doc(`/notifications/${snapshot.id}`)
       .delete()
-      .then(() => {
-        return;
-      })
       .catch(error => {
         console.log("error in delete notification on unlike", error);
-        return;
       });
   });
 
 exports.createNotificationOnComment = functions.firestore
   .document("comments/{id}")
   .onCreate(snapshot => {
-    db.doc(`/screams/${snapshot.data().screamId}`)
+    return db
+      .doc(`/screams/${snapshot.data().screamId}`)
       .get()
       .then(doc => {
-        return db.doc(`/notifications/${snapshot.id}`).set({
-          createdAt: new Date().toISOString(),
-          sender: snapshot.data().userHandle,
-          recipient: doc.data().userHandle,
-          type: "comment",
-          read: false,
-          screamId: doc.id
-        });
-      })
-      .then(() => {
-        return;
+        if (
+          doc.exists &&
+          doc.data().userHandle !== snapshot.data().userHandle
+        ) {
+          return db.doc(`/notifications/${snapshot.id}`).set({
+            createdAt: new Date().toISOString(),
+            sender: snapshot.data().userHandle,
+            recipient: doc.data().userHandle,
+            type: "comment",
+            read: false,
+            screamId: doc.id
+          });
+        }
       })
       .catch(error => {
         console.log("error in comment notification", error);
-        return;
       });
   });

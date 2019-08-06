@@ -60,7 +60,9 @@ exports.signup = (req, res) => {
       if (error.code === "auth/email-already-in-use") {
         return res.status(400).json({ email: "email is already in use" });
       }
-      return res.status(500).json({ error: error.code });
+      return res
+        .status(500)
+        .json({ general: "something went wrong, please try again" });
     });
 };
 
@@ -84,11 +86,9 @@ exports.login = (req, res) => {
     })
     .catch(error => {
       console.error("error login", error);
-      if (error.code === "auth/wrong-password") {
-        return res
-          .status(403)
-          .json({ general: "wrong credentials, please try again" });
-      } else return res.status(500).json({ error: error.code });
+      return res
+        .status(403)
+        .json({ general: "wrong credentials, please try again" });
     });
 };
 
