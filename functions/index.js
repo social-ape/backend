@@ -2,6 +2,8 @@ const functions = require("firebase-functions");
 const app = require("express")();
 const firebaseAuth = require("./util/firebaseAuth");
 const { db } = require("./util/admin");
+const cors = require("cors");
+
 const {
   getAllScreams,
   postOneScream,
@@ -20,6 +22,8 @@ const {
   getUserDetails,
   markNotificationsAsRead
 } = require("./handlers/users");
+
+app.use(cors());
 
 app.get("/screams", getAllScreams);
 app.post("/scream", firebaseAuth, postOneScream);
